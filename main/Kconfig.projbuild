@@ -1,0 +1,268 @@
+menu "Example Configuration"
+
+    config EXAMPLE_WIFI_SSID
+        string "WiFi SSID"
+        default "myssid"
+        help
+            SSID (network name) for the example to connect to.
+
+    config EXAMPLE_WIFI_PASSWORD
+        string "WiFi Password"
+        default "mypassword"
+        help
+            WiFi password (WPA or WPA2) for the example to use.
+
+    config EXAMPLE_MAXIMUM_RETRY
+        int "Maximum retry"
+        default 5
+        help
+            Set the Maximum retry to avoid station reconnecting to the AP unlimited when the AP is really inexistent.
+
+    config EXAMPLE_STATIC_IP_ADDR
+        string "Static IP address"
+        default "192.168.4.2"
+        help
+            Set static IP address.
+
+    config EXAMPLE_STATIC_NETMASK_ADDR
+        string "Static netmask address"
+        default "255.255.255.0"
+        help
+            Set static netmask address.
+
+    config EXAMPLE_STATIC_GW_ADDR
+        string "Static gateway address"
+        default "192.168.4.1"
+        help
+            Set static gateway address.
+
+    choice EXAMPLE_STATIC_DNS_SERVER
+        prompt "Choose DNS server"
+        default EXAMPLE_STATIC_DNS_AUTO
+        help
+            Select auto to make gateway address as DNS server or manual to input your DNS server
+        config EXAMPLE_STATIC_DNS_AUTO
+            bool "Use gateway address as DNS server"
+            help
+                Set DNS server the same as gateway address
+
+        config EXAMPLE_STATIC_DNS_MANUAL
+            bool "Set manual value as DNS server"
+            help
+                Set DNS server with you want
+    endchoice
+
+    config EXAMPLE_STATIC_DNS_SERVER_MAIN
+        string "Main DNS server address"
+        default "192.168.4.1"
+        depends on EXAMPLE_STATIC_DNS_MANUAL
+        help
+            Set main DNS server address.
+
+    config EXAMPLE_STATIC_DNS_SERVER_BACKUP
+        string "Backup DNS server address"
+        default "192.168.4.1"
+        depends on EXAMPLE_STATIC_DNS_MANUAL
+        help
+            Set backup DNS server address. It can be same with the main DNS server address or leave empty.
+
+    config EXAMPLE_STATIC_DNS_RESOLVE_TEST
+        bool "Enable DNS resolve test"
+        default n
+        help
+            Enable it and configure EXAMPLE_STATIC_RESOLVE_DOMAIN to resolve DNS domain name
+
+    config EXAMPLE_STATIC_RESOLVE_DOMAIN
+        string "Domain name to resolve"
+        default "www.espressif.com"
+        depends on EXAMPLE_STATIC_DNS_RESOLVE_TEST
+        help
+            Set domain name for DNS test
+endmenu
+
+menu "Devices"
+
+	orsource "$IDF_PATH/examples/common_components/env_caps/$IDF_TARGET/Kconfig.env_caps"
+
+	config ESC_PRINTER
+		bool "Enable ESC printer"
+		default n
+		help 
+			Mark if project contains ESC printer
+			
+	config BARCODE_SCANNER
+		bool "Enable Barcode scanner"
+		default n
+		help 
+			Mark if project contains Barcode scanner
+			
+		
+		config WIEGAND
+	        bool "Wiegand"
+	        depends on BARCODE_SCANNER
+	        default n
+	        help 
+	        	Select if wiegand connected
+	        	
+		if WIEGAND && BARCODE_SCANNER
+        	config EXAMPLE_D0_GPIO
+		        int "D0 GPIO number"
+		        default 4 if IDF_TARGET_ESP8266 || IDF_TARGET_ESP32C3
+		        default 18 if IDF_TARGET_ESP32 || IDF_TARGET_ESP32S2 || IDF_TARGET_ESP32S3
+		        help
+		            GPIO number for D0 Wiegand line
+		
+		    config EXAMPLE_D1_GPIO
+		        int "D1 GPIO number"
+		        default 5 if IDF_TARGET_ESP8266 || IDF_TARGET_ESP32C3
+		        default 17 if IDF_TARGET_ESP32 || IDF_TARGET_ESP32S2 || IDF_TARGET_ESP32S3
+		        help
+		            GPIO number for D1 Wiegand line
+		
+		    config EXAMPLE_BUF_SIZE
+		        int "Buffer size, bytes"
+		        default 4
+		        help
+		            Buffer size for Wiegand data. 4 bytes should be enough for demo
+		endif
+		        	
+	    config EXAMPLE_UART_PORT_NUM
+	        int "UART port number"
+	        range 0 2 if IDF_TARGET_ESP32 || IDF_TARGET_ESP32S3
+	        default 2 if IDF_TARGET_ESP32 || IDF_TARGET_ESP32S3
+	        range 0 1
+	        default 1
+	        depends on !WIEGAND && BARCODE_SCANNER
+	        help
+	            UART communication port number for the example.
+	            See UART documentation for available port numbers.
+	
+	    config EXAMPLE_UART_BAUD_RATE
+	        int "UART communication speed"
+	        range 1200 115200
+	        default 115200
+	        depends on !WIEGAND && BARCODE_SCANNER
+	        help
+	            UART communication speed for Modbus example.
+	
+	    config EXAMPLE_UART_RXD
+	        int "UART RXD pin number"
+	        range ENV_GPIO_RANGE_MIN ENV_GPIO_IN_RANGE_MAX
+	        default 18
+	        depends on !WIEGAND && BARCODE_SCANNER
+	        help
+	            GPIO number for UART RX pin. See UART documentation for more information
+	            about available pin numbers for UART.
+	
+	    config EXAMPLE_UART_TXD
+	        int "UART TXD pin number"
+	        range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
+	        default 17
+	        depends on !WIEGAND && BARCODE_SCANNER
+	        help
+	            GPIO number for UART TX pin. See UART documentation for more information
+	            about available pin numbers for UART.
+	
+	    config EXAMPLE_TASK_STACK_SIZE
+	        int "UART echo example task stack size"
+	        range 1024 16384
+	        default 2048
+	        depends on !WIEGAND && BARCODE_SCANNER
+	        help
+	            Defines stack size for Barcode scanner task. Insufficient stack size can cause crash.
+	config LED_MATRIX
+		bool "Enable LED matrix"
+		default n
+		help 
+			Mark if project contains Barcode scanner
+			
+			
+	    config LED_UART_PORT_NUM
+	        int "UART port number"
+	        range 1 2 if IDF_TARGET_ESP32 || IDF_TARGET_ESP32S3
+	        default 1 if IDF_TARGET_ESP32 || IDF_TARGET_ESP32S3
+	        range 0 1
+	        default 1
+	        depends on LED_MATRIX
+	        help
+	            UART communication port number for the example.
+	            See UART documentation for available port numbers.
+	
+	    config LED_UART_BAUD_RATE
+	        int "UART communication speed"
+	        range 1200 115200
+	        default 115200
+	        depends on LED_MATRIX
+	        help
+	            UART communication speed for Modbus example.
+	
+	    config LED_UART_RXD
+	        int "UART RXD pin number"
+	        range ENV_GPIO_RANGE_MIN ENV_GPIO_IN_RANGE_MAX
+	        default 18
+	        depends on LED_MATRIX
+	        help
+	            GPIO number for UART RX pin. See UART documentation for more information
+	            about available pin numbers for UART.
+	
+	    config LED_UART_TXD
+	        int "UART TXD pin number"
+	        range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
+	        default 17
+	        depends on LED_MATRIX
+	        help
+	            GPIO number for UART TX pin. See UART documentation for more information
+	            about available pin numbers for UART.
+	
+	    config LED_TASK_STACK_SIZE
+	        int "UART echo example task stack size"
+	        range 1024 16384
+	        default 2048
+	        depends on LED_MATRIX
+	        help
+	            Defines stack size for LED task. Insufficient stack size can cause crash.
+	            
+	config TRIGGER
+		bool "Enable trigger"
+		default n
+		help 
+			Mark if project contains ESC printer
+			
+		config TRIGGER_PIN
+	        int "Trigger input pin"	
+	        range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
+	        default 6 if IDF_TARGET_ESP32S3
+	        default 18
+	        depends on TRIGGER
+	        help
+	            GPIO pin number to be used as Trigger Pin.
+	            
+	config RELAY
+		bool "Enable relay"
+		default n
+		help 
+			Mark if project contains ESC printer
+			
+		config RELAY_PIN
+	        int "Relay output pin"
+	        range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
+	        default 7 if IDF_TARGET_ESP32S3
+	        default 19
+	        depends on RELAY
+	        help
+	            GPIO pin number to be used as Relay Pin.
+		
+		config RELAY_INVERSE_CONTROL
+			bool "Inverse"
+			default n
+			depends on RELAY
+			help
+				Relay connects in low level input	
+				
+	config CAMERA
+		bool "Enable camera"
+		default n
+		help 
+			Mark if project contains USB camera
+							    
+endmenu
